@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="shared.css"/>
+	<link rel="stylesheet" type="text/css" href="form.css">
+	<title>Form</title>
+</head>
+<body>
+<nav>
+	<ul class = "main-menu menu">
+		<li>
+			<div class = "menu-title"><a href="links.html">Linkes</a></div>
+			<ul class="secondary-menu menu">  
+				<li><a href="http://google.com">Google</a></li>
+				<li><a href="http://amazon.com">Amazon</a></li>
+				<li><a href="http://facebook.com">Facebook</a></li>
+				<li><a href="http://apple.com">Apple</a></li>
+			</ul>
+		</li>
+
+		<li><div class="menu-title"><a href = "index.html">Home</a></div></li>
+		<li><div class="menu-title"><a href ="images.html">Image</a></div></li>
+		<li><div class="menu-title">Form</div></li>
+	</ul>
+	</nav>
+
+	<form class = "form" action = "index.html" method = "GET">
+		Name: <input type="text" name="name" placeholder="input your name" >
+		<div class="selected">
+		Pages:
+			<select name="page">
+				<option value ="1"> Home</option>
+				<option value ="2"> Links</option>
+				<option value ="3"> Images</option>
+				<option value ="4"> Form</option>
+			</select>
+		</div>
+		<button type="submit">Submit</button>
+		<button type="reset">Reset</button>
+	</form>
+</body>
+</html>

@@ -1,0 +1,12 @@
+.form{
+	margin-top: 100px;
+	display: inline-block;
+	top: 25px;
+	margin-left: 500px;
+	font-size: 14px;
+	font-family: Helvetica;
+}
+.selected{
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
