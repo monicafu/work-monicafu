@@ -1,0 +1,45 @@
+body { 
+  background-color: #DAEEF5;
+}
+a:visited {
+  color: #47AFD1;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu-title {
+  width: 85px;
+  text-align: center;
+}
+
+.main-menu {
+  font-size: 20px;
+  display: inline-block;
+  margin-left: 50px;
+}
+
+.main-menu > li {
+  display: inline-block;
+}
+
+.main-menu > li:hover {
+  background-color: #78DAF5;
+}
+
+.secondary-menu {
+  display:none;
+  position: absolute;
+  background-color: #EDECA8;
+  text-align: center;
+}
+
+.secondary-menu > li:hover {
+  background-color: #78DAF5;
+}
+
+.main-menu > li:hover .secondary-menu {
+  display:inline-block;
+}
