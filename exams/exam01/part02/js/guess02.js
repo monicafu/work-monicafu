@@ -1,4 +1,4 @@
-    const wordlist = `
+const wordlist = `
     about other which their there first would these click price
     state email world music after video where books links years
     order items group under games could great hotel store terms
@@ -138,25 +138,25 @@
     fares hoped safer marsh ricky theta stake arbor
     `.split(/ |\n/g).map( word => word.toUpperCase() ).filter( word => word );
 
+    let listOfHuman = [];
+    let listOfMachine = [];
     let answer = "";
-    let listOfHistory = [];
+    let machineGuess = "";
     let won = false;
-(() => {
 
+
+(() => {
     function random(list) {
         return list[Math.floor(Math.random() * list.length)];
     }
 
-    function pickWord(wordList){
-        const word = random(wordList);
-        console.log("answer word: "+ word);
-        return word;
+    function pickWord(wordList) {
+        return random(wordList);
     }
-
-    //get the text from input text
+    //get human input
     function getWord() {
-        let input = document.getElementById('guess-input');
-        return input.value === null ? "" : input.value.toUpperCase();
+        let input = document.getElementById('human-input').value.toUpperCase();
+        return input === null ? "" : input;
     }
 
     //compare word letter by letter
@@ -182,12 +182,20 @@
         }
         return count;
     }
-    //refresh the page
+
     function render() {
-        document.querySelector('.history').innerHTML = generateWordsList();
-        document.querySelector('.turns').innerHTML = `Number of turns: ${listOfHistory.length.toString()}`;
+        document.getElementById('comp-input').value = machineGuess;
+        document.querySelector('.human-his').innerHTML = generateHumanList();
+        document.querySelector('.comp-his').innerHTML = generateMachineList();
+        document.querySelector('.turns').innerHTML = `Number of turns: ${listOfHuman.length.toString()}.`;
         if (won){
-            document.querySelector('.status').innerHTML =`\nCongratulations! Your guess ${getWord()} win`;
+            let winner = "";
+            if (machineGuess === answer){
+                winner = "Computer";
+            }else{
+                winner = "Human";
+            }
+            document.querySelector('.status').innerHTML = `Congratulations! the answer is ${answer},  ${winner} wins in ${listOfHuman.length.toString()} turns.`;
             document.querySelector('.status').style.fontSize = "20px";
             document.querySelector('.status').style.color = "#F21120";
             //button change to reset and clear the list to next round
@@ -204,65 +212,83 @@
     }
     //remove the last listener and add new listener
     function addRestListener() {
-        let button =document.querySelector(".guess-button");
-        button.removeEventListener('click',addPreviousList);
-        button.addEventListener('click',resetGuess);
+        document.querySelector(".guess-button").removeEventListener('click',addResultList);
+        document.querySelector(".guess-button").addEventListener('click',resetGuess);
     }
     //reset game
     function resetGuess() {
-        document.getElementById('guess-input').value = "";
-        document.querySelector('.history').innerHTML = "";
-        document.querySelector('.turns').innerHTML = 'Number of turns: 0';
+        document.getElementById('human-input').value = "";
+        document.getElementById('comp-input').value = "";
+        document.querySelector('.human-his').innerHTML = "";
+        document.querySelector('.comp-his').innerHTML = "";
+        document.querySelector('.turns').innerHTML = 'Number of turns: 0 ';
         document.querySelector('.status').style.fontSize = "16px";
         document.querySelector('.status').style.color = "#000000";
         document.querySelector('.status').innerHTML = 'Message: Enter a common 5 letter word to guess';
         playAgain();
     }
     function playAgain(){
-        let button = document.querySelector(".guess-button");
-        button.innerHTML = 'Guess';
-        button.style.backgroundColor = "#21a722"
+        let button = document.querySelector('.guess-button');
+        button.style.backgroundColor = "#ffffff";
+        button.innerHTML = 'Begin';
         button.disabled = true;
         button.removeEventListener('click',resetGuess);
         //reset the globals;
-        listOfHistory =[];
-        won = false;
+        listOfHuman =[];
+        listOfMachine = [];
         answer = "";
+        machineGuess = "";
+        won = false;
         playGame();
     }
 
     //update the history guessed word
-    function generateWordsList() {
-        let myguess = getWord();
-        compareLetter(myguess,answer);
-        const list = listOfHistory.map((myguess) => `Your guess:  ${myguess},  ${compareLetter(myguess,answer)} common letters.`).join('\n');
+    function generateHumanList() {
+        let humanGuess = getWord();
+        compareLetter(humanGuess,answer);
+        const list = listOfHuman.map((humanGuess) => `Your guess: ${humanGuess}, ${compareLetter(humanGuess,answer)} common letters.`).join('\n');
+        return list;
+    }
+    function generateMachineList() {
+        compareLetter(machineGuess,answer);
+        const list = listOfMachine.map((machineGuess) => `Machine guess: ${machineGuess}, ${compareLetter(machineGuess,answer)} common letters.`).join('\n');
         return list;
     }
 
-    //add input word to history array and show in text area
-    function addToList(word) {
-        listOfHistory.push(word);
+    function addToMachineList(word){
+        listOfMachine.push(word);
         render();
     }
-
-    //call the add list function
-    function addPreviousList() {
-        addToList(getWord());
-        document.getElementById('guess-input').value = "";
+    function addToHumanList(word) {
+        listOfHuman.push(word);
+        render();
     }
+    //add human and machine guess to list
+    function addResultList() {
+        addToHumanList(getWord());
+        machineGuess = pickWord(wordlist);
+        //console.log("machine:"+machineGuess);
+        addToMachineList(machineGuess);
+        document.getElementById('human-input').value = "";
+    }
+
     //listen the input text and valid input
     function addInputListener() {
-        let input = document.getElementById('guess-input');
+        let input = document.getElementById('human-input');
         let button = document.querySelector(".guess-button");
         input.addEventListener('input',inputValidation);
         addEnterListener(input,button);
     }
-    //listen enter key
-    function addEnterListener(input,button) {
+    //listen the enter key
+    function addEnterListener(input, button) {
         input.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' && button.innerHTML === 'Guess'
-                && inputValidation()) {
-                addPreviousList();
+            if (event.key === 'Enter' && inputValidation()
+                && (button.innerHTML === 'Guess' || button.innerHTML === 'Begin')) {
+                addResultList();
+            }
+            if (listOfHuman.length !== 0) {
+                button.innerHTML = 'Guess';
+                button.style.backgroundColor = "#21a722"
             }
             if (won) {
                 button.innerHTML = 'Reset';
@@ -273,14 +299,14 @@
     //valid the input length before guess
     function inputValidation() {
         let button = document.querySelector(".guess-button");
-        let input = document.getElementById('guess-input');
+        let input = document.getElementById('human-input');
         let status = document.querySelector(".status");
         let valid = false;
+
         if (getWord().length === 5){
             if (wordlist.includes(getWord())){
                 status.innerHTML = "Message: Your guess is in the word list";
                 input.style.color = "#21a722";
-                button.style.backgroundColor = "#21a722";
                 button.disabled = false;
                 valid = true;
             }else{
@@ -294,31 +320,37 @@
             status.innerHTML = "*Message: Enter a common 5 letter word to guess";
         }
         return valid;
-
     }
-    //listen the guess button
+
     function addGuessListener() {
         let button = document.querySelector(".guess-button");
         button.addEventListener('click',() => {
-            if (button.innerHTML === 'Guess' && inputValidation()){
-                addPreviousList();
+            if ( (button.innerHTML === 'Guess' || button.innerHTML === 'Begin')
+                && inputValidation()){
+                addResultList();
+            }
+            if (listOfHuman.length !== 0){
+                button.innerHTML = 'Guess';
+                button.style.backgroundColor = "#21a722"
             }
             if (won){
                 button.innerHTML = 'Reset';
                 button.style.backgroundColor = "#533993"
             }
         });
+
     }
+
+
     function playGame() {
-        answer = pickWord(wordlist);
+        if (document.querySelector(".guess-button").innerHTML === 'Begin'){
+            answer = pickWord(wordlist);
+            console.log("answer:"+answer);
+        }
         addInputListener();
         addGuessListener();
         render();
     }
     playGame();
+
 })();
-
-
-
-
-

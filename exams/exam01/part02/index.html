@@ -1,0 +1,33 @@
+<html>
+<head>
+    <link rel = "stylesheet" href="css/guess02.css"/>
+</head>
+<body>
+<title>Human VS. Machine</title>
+<div id = "page-container">
+
+    <div class = "input">
+        <label>Human:</label>
+        <input class = "human-text" id = "human-input" placeholder="5 length letters" type="text">
+        <button class = "guess-button" type = "button" disabled= "disabled" >Begin</button>
+        <label>Machine:</label>
+        <input class = "comp-text" id = "comp-input" placeholder="5 length letters" type="text">
+        <p class = "status">Message: Enter a common 5 letter word for them to guess</p>
+        <p class = "turns" >Number of turns: 0 </p>
+
+    </div>
+
+    <div class = "output">
+        <p>List of <b>human</b> guessed words: <span>List of <b>computer</b> guessed words:</span></p>
+        <textarea class = 'human-his' rows="30" placeholder="List of human guessed words">
+        </textarea>
+        <textarea class = 'comp-his' rows="30" placeholder="List of computer guessed words">
+        </textarea>
+    </div>
+
+</div>
+
+<script src = "js/guess22.js"></script>
+</body>
+
+</html>
