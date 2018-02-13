@@ -138,11 +138,12 @@ const wordlist = `
     fares hoped safer marsh ricky theta stake arbor
     `.split(/ |\n/g).map( word => word.toUpperCase() ).filter( word => word );
 
-    let listOfHuman = [];
-    let listOfMachine = [];
-    let answer = "";
-    let machineGuess = "";
-    let won = false;
+let listOfHuman = [];
+let listOfMachine = [];
+let answerOfHuman = "";
+let answerOfMachine = "guess";
+let machineGuess = "";
+let won = false;
 
 
 (() => {
@@ -153,6 +154,7 @@ const wordlist = `
     function pickWord(wordList) {
         return random(wordList);
     }
+
     //get human input
     function getWord() {
         let input = document.getElementById('human-input').value.toUpperCase();
@@ -190,12 +192,13 @@ const wordlist = `
         document.querySelector('.turns').innerHTML = `Number of turns: ${listOfHuman.length.toString()}.`;
         if (won){
             let winner = "";
-            if (machineGuess === answer){
+            if (machineGuess === answerOfMachine){
                 winner = "Computer";
-            }else{
+                document.querySelector('.status').innerHTML = `Congratulations! the answer is ${answerOfMachine},  ${winner} wins in ${listOfMachine.length.toString()} turns.`;
+            }else if (getWord() === answerOfHuman){
                 winner = "Human";
+                document.querySelector('.status').innerHTML = `Congratulations! the answer is ${answerOfHuman},  ${winner} wins in ${listOfHuman.length.toString()} turns.`;
             }
-            document.querySelector('.status').innerHTML = `Congratulations! the answer is ${answer},  ${winner} wins in ${listOfHuman.length.toString()} turns.`;
             document.querySelector('.status').style.fontSize = "20px";
             document.querySelector('.status').style.color = "#F21120";
             //button change to reset and clear the list to next round
@@ -245,13 +248,13 @@ const wordlist = `
     //update the history guessed word
     function generateHumanList() {
         let humanGuess = getWord();
-        compareLetter(humanGuess,answer);
-        const list = listOfHuman.map((humanGuess) => `Your guess: ${humanGuess}, ${compareLetter(humanGuess,answer)} common letters.`).join('\n');
+        compareLetter(humanGuess,answerOfHuman);
+        const list = listOfHuman.map((humanGuess) => `Your guess: ${humanGuess}, ${compareLetter(humanGuess,answerOfHuman)} common letters.`).join('\n');
         return list;
     }
     function generateMachineList() {
-        compareLetter(machineGuess,answer);
-        const list = listOfMachine.map((machineGuess) => `Machine guess: ${machineGuess}, ${compareLetter(machineGuess,answer)} common letters.`).join('\n');
+        compareLetter(machineGuess,answerOfMachine);
+        const list = listOfMachine.map((machineGuess) => `Machine guess: ${machineGuess}, ${compareLetter(machineGuess,answerOfMachine)} common letters.`).join('\n');
         return list;
     }
 
@@ -267,7 +270,6 @@ const wordlist = `
     function addResultList() {
         addToHumanList(getWord());
         machineGuess = pickWord(wordlist);
-        //console.log("machine:"+machineGuess);
         addToMachineList(machineGuess);
         document.getElementById('human-input').value = "";
     }
@@ -277,13 +279,28 @@ const wordlist = `
         let input = document.getElementById('human-input');
         let button = document.querySelector(".guess-button");
         input.addEventListener('input',inputValidation);
-        addEnterListener(input,button);
+        if (button.innerHTML === 'Begin'){
+            addBeginEnterListener(input,button);
+        }else if (button.innerHTML === 'Guess'){
+            addGuessEnterListener(input,button);
+        }
     }
     //listen the enter key
-    function addEnterListener(input, button) {
+    function addBeginEnterListener(input,button) {
         input.addEventListener('keydown', function (event) {
             if (event.key === 'Enter' && inputValidation()
-                && (button.innerHTML === 'Guess' || button.innerHTML === 'Begin')) {
+                && button.innerHTML === 'Begin'){
+                answerOfMachine = getWord();
+                console.log("machine's answer:"+ answerOfMachine);
+                beginGuess();
+            }
+        });
+    }
+
+    function addGuessEnterListener(input, button) {
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && inputValidation()
+                && button.innerHTML === 'Guess' ) {
                 addResultList();
             }
             if (listOfHuman.length !== 0) {
@@ -310,7 +327,11 @@ const wordlist = `
                 button.disabled = false;
                 valid = true;
             }else{
-                status.innerHTML = "*Warn: Unknown word.Choose a different common 5 letter word to guess";
+                if(button.innerHTML === 'Begin'){
+                    status.innerHTML = "*Warn: Unknown word.Choose a different common 5 letter word for them to guess";
+                }else if (button.innerHTML === 'Guess'){
+                    status.innerHTML = "*Warn: Unknown word.Choose a different common 5 letter word to guess";
+                }
                 input.style.color = "#F21120";
             }
         }else if (getWord().length > 5){
@@ -321,12 +342,27 @@ const wordlist = `
         }
         return valid;
     }
+    function beginGuess(){
+        render();
+        document.getElementById('human-input').value = "";
+        document.querySelector(".guess-button").innerHTML = "Guess";
+        playGame();
+    }
 
+    function addBeginListener() {
+        let button = document.querySelector(".guess-button");
+        button.addEventListener('click',() => {
+            if ( button.innerHTML === 'Begin' && inputValidation() ){
+                answerOfMachine = getWord();
+                console.log("machine's answer:"+ answerOfMachine);
+                beginGuess();
+            }
+        });
+    }
     function addGuessListener() {
         let button = document.querySelector(".guess-button");
         button.addEventListener('click',() => {
-            if ( (button.innerHTML === 'Guess' || button.innerHTML === 'Begin')
-                && inputValidation()){
+            if ( button.innerHTML === 'Guess' && inputValidation()){
                 addResultList();
             }
             if (listOfHuman.length !== 0){
@@ -338,19 +374,22 @@ const wordlist = `
                 button.style.backgroundColor = "#533993"
             }
         });
-
     }
-
 
     function playGame() {
+
         if (document.querySelector(".guess-button").innerHTML === 'Begin'){
-            answer = pickWord(wordlist);
-            console.log("answer:"+answer);
+            answerOfHuman = pickWord(wordlist);
+            console.log("human's answer:"+answerOfHuman);
+            addBeginListener();
         }
         addInputListener();
-        addGuessListener();
+        if (document.querySelector(".guess-button").innerHTML === 'Guess'){
+            addGuessListener();
+        }
         render();
     }
+
     playGame();
 
 })();
