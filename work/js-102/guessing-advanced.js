@@ -36,6 +36,34 @@ while (!won) { // Will loop over block until condition isn't true
 console.log(`Found ${wordInfo.word} in ${history.count} turns`);
 
 // YOU MAY ADD YOUR OWN FUNCTIONS (ONLY FUNCTIONS) BELOW THIS
+function searchRange(wordList,ans){
+  let res = [];
+  let ll = 0;
+  let lr = wordList.length - 1;
+  while(ll <= lr){
+    let mid = parseInt((ll + lr)/2);
+    if (wordList[mid].charAt(0) < ans.charAt(0)) {
+        ll = mid + 1;
+    }else{
+        lr = mid - 1;
+    }
+  }
+  let rl = 0;
+  let rr = wordList.length - 1;
+  while(rl <= rr){
+    let mid = parseInt((rl + rr)/2);
+    if (wordList[mid].charAt(0) <= ans.charAt(0)) {
+        rl = mid + 1;
+    }else{
+        rr = mid - 1;
+    }
+  }
+  if (ll <= rr) {
+    res[0] = ll;
+    res[1] = rr;
+  }
+  return res;
+}
 
 // YOU MAY ADD YOUR OWN FUNCTIONS (ONLY FUNCTIONS) ABOVE THIS
 
@@ -45,7 +73,6 @@ function thinkAbout( wordInfo ) {
   // return anything you want, even nothing
 
   // EDIT BELOW THIS
-
   return allWords();
   // EDIT ABOVE THIS
 }
@@ -56,9 +83,15 @@ function pickGuess( wordInfo, history ) {
   // along with any startup info that was stored in history.info
 
   // EDIT BELOW THIS
+  const ans = wordInfo.word;
   let wordList = wordInfo.magic;
   let myguess;
-  myguess = wordList[history.count-1];
+  let range = searchRange(wordList,wordInfo.word);
+
+
+  if (range[0] + history.count <= range[1]) {
+      myguess = wordList[range[0]+history.count];
+  }
   return myguess;
   // EDIT ABOVE THIS
 }
@@ -71,7 +104,6 @@ function compareLetters( guess, wordInfo ) {
   // EDIT BELOW THIS
   let count = 0;
   let map = [];
-
   if ( guess === wordInfo.word) {
     won = true;
     result.won = true;
