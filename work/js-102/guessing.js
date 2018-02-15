@@ -46,6 +46,7 @@ function thinkAbout( wordInfo ) {
 
   // EDIT BELOW THIS
 
+  return allWords();
   // EDIT ABOVE THIS
 }
 
@@ -55,7 +56,10 @@ function pickGuess( wordInfo, history ) {
   // along with any startup info that was stored in history.info
 
   // EDIT BELOW THIS
-
+  let wordList = wordInfo.magic;
+  let myguess;
+  myguess = wordList[history.count-1];
+  return myguess;
   // EDIT ABOVE THIS
 }
 
@@ -65,7 +69,29 @@ function compareLetters( guess, wordInfo ) {
   // You may add info in result beyond what is needed if you wish
 
   // EDIT BELOW THIS
+  let count = 0;
+  let map = [];
 
+  if ( guess === wordInfo.word) {
+    won = true;
+    result.won = true;
+  }
+  for (let letter of wordInfo.word) {
+    if (!map[letter]){
+      map[letter] = 0;
+    }
+    map[letter]++;  
+  }
+  for (let i = 0; i < guess.length; i++) {
+    if ( map[guess[i]] && map[guess[i]] != 0) {
+      map[guess[i]]--;
+      count++;
+    }else{
+      continue;
+    }
+  }
+  result.similar = count;
+  return result;
   // EDIT ABOVE THIS
 }
 
