@@ -7,7 +7,9 @@
     font-size:16px ;
     font-style: italic;
 }
-
+.input > label{
+    margin-left: 35%;
+}
 .input{
     box-sizing: border-box;
     width:100%;
@@ -17,7 +19,7 @@
 }
 .input > input{
     margin-top: 40px;
-    margin-left: 35%;
+    margin-left: 2px;
     font-size:16px;
 }
 
@@ -26,8 +28,8 @@
 }
 
 .input > p {
-    margin-top: 45px;
-    margin-left: 40%;
+    margin-top: 20px;
+    margin-left: 35%;
     font-style: italic;
     font-size:20px;
 }
