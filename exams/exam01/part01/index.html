@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <link rel = "stylesheet" href="css/guess01.css"/>
+    </head>
+    <body>
+        <title>Guess The Word</title>
+        <div id = "page-container">
+            <div class = "input" >
+                <label>Input:</label>
+                <input class = "guess-text" id = "guess-input" placeholder="Enter a 5 length word" type="text">
+                <button class = "guess-button" type = "button" disabled= "disabled">Guess</button>
+                <p class = "status">Message: Enter a common 5 letter word to guess</p>
+                <p class = "turns" >Turns</p>
+            </div>
+
+            <div class = "output">
+
+                <p>List of guessed words:</p>
+                <textarea class = 'history' rows="30" placeholder="List of history guessed words">
+                </textarea>
+
+            </div>
+        </div>
+        <script src = "js/guess01.js"></script>
+    </body>
+
+</html>

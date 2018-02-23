@@ -1,0 +1,61 @@
+#page-container{
+    width: 900px;
+    height: 800px;
+    margin-left: 20%;
+    margin-right: 20%;
+    background-color: #F2F4F5;
+    font-size:16px ;
+}
+
+.input{
+    box-sizing: border-box;
+    width:100%;
+    height:25%;
+    border:solid #ACAFB0 1px;
+    padding-bottom: 20px;
+}
+.input > label{
+    margin-top: 20px;
+    margin-left: 30%;
+    font-size:16px;
+}
+
+.input > #human-input{
+    margin-left:8px;
+}
+.input > input{
+    margin-top: 20px;
+    font-size:16px;
+}
+
+.input > button{
+    font-size:16px;
+    margin-left:5px;
+}
+
+.input > p {
+    margin-top: 20px;
+    margin-left: 30%;
+    font-size:16px;
+}
+
+.output{
+    box-sizing: border-box;
+    width:100%;
+    height:75%;
+    border:solid #ACAFB0 1px;
+}
+.output > p {
+    margin-left: 15%;
+    font-size:16px;
+}
+.output > p > span{
+    margin-left: 28%;
+}
+
+.output > textarea {
+    font-size:16px;
+    width:350px;
+    margin-left: 60px;
+}
+

@@ -1,0 +1,53 @@
+#page-container{
+    width: 800px;
+    height: 800px;
+    margin-left: 20%;
+    margin-right: 20%;
+    background-color: #F2F4F5;
+    font-size:16px ;
+    font-style: italic;
+}
+.input > label{
+    margin-left: 35%;
+}
+.input{
+    box-sizing: border-box;
+    width:100%;
+    height:20%;
+    border:solid #ACAFB0 1px;
+    padding-bottom: 20px;
+}
+.input > input{
+    margin-top: 40px;
+    margin-left: 2px;
+    font-size:16px;
+}
+
+.input > button{
+    font-size:16px;
+}
+
+.input > p {
+    margin-top: 20px;
+    margin-left: 35%;
+    font-style: italic;
+    font-size:20px;
+}
+.output{
+    box-sizing: border-box;
+    width:100%;
+    height:80%;
+    border:solid #ACAFB0 1px;
+}
+.output > p {
+    margin-left: 40%;
+    font-style: italic;
+    font-size:20px;
+}
+
+.output > textarea {
+    margin-left: 25%;
+    font-style: italic;
+    font-size:16px;
+    width:400px;
+}
