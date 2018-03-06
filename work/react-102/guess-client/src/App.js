@@ -83,12 +83,10 @@ class App extends Component {
                         common:res.common
                     }],
                     won : res.isWon,
-                    word :''//blank the input
+                    word :''
                 });
             }
-            //console.log(`res json from server: ${res.common}, ${res.isWon}`);
         }
-
     }
     handleError(e) {
         this.setState({
@@ -108,7 +106,7 @@ class App extends Component {
             });
         }
     }
-    //begin an new round
+    //begin a new round
     beginGame(){
         this.setState({
             modes :['guess','reset'],
@@ -149,11 +147,6 @@ class App extends Component {
             return;
         }
         let valid = inputValidation(this.state.list,this.state.word);
-        // if (this.state.won) {
-        //     this.setState( {won: true},() => {
-        //         this.toggleMode();
-        //     });
-        // }
         if (valid && this.state.mode === this.state.modes[0]){
             this.fetchResult();
         }else if (this.state.won){
@@ -161,13 +154,12 @@ class App extends Component {
         }
     }
 
-    //listen the word change and set the word dynamically
     updateWord(word) {
         this.setState({
             word
         });
     }
-
+    //clear error message
     clearError() {
         this.setState({
             error: null
