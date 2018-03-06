@@ -21,7 +21,7 @@
 .cw-controls{
   box-sizing: border-box;
   width:100%;
-  height:10%;
+  height:15%;
   border:solid  #c8e1ff 1px;
   padding-bottom: 10px;
   font-size:20px;
@@ -36,9 +36,14 @@
   margin-top: 20px;
   font-size :20px;
   margin-left:5px;
+  margin-bottom: 15px;
 }
-.cw-controls > button :hover{
+.cw-controls > button:hover{
   background-color: forestgreen;
+}
+.cw-controls label {
+  color: #3a33d1;
+  font-size:14px;
 }
 
 .cw-message{
@@ -50,7 +55,7 @@
   margin-top: 3%;
   box-sizing: border-box;
   width: 100%;
-  height: 90%;
+  height: 85%;
   border:solid #ACAFB0 1px;
 }
 .cw-result > div{

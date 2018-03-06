@@ -13,6 +13,7 @@ import CWResult from './CWResult';
 import {inputValidation} from './inputValidation';
 import {getId,getWordList,getResult} from "./services/getData";
 
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -29,6 +30,7 @@ class App extends Component {
         };
         this.playGame = this.playGame.bind(this);
         this.updateWord = this.updateWord.bind(this);
+        this.clearError = this.clearError.bind(this);
     }
 
     componentWillMount() {
@@ -62,15 +64,31 @@ class App extends Component {
     }
 
     handleResult(res){
-        this.setState({
-            results:[...this.state.results,{
-                word:this.state.word.toUpperCase(),
-                common:res.common
-            }],
-            won : res.isWon,
-            word :''//blank the input
-        });
-        console.log(`res json from server: ${res.common}, ${res.isWon}`);
+        if (res.status === 500){
+            this.handleError(res.errCode);
+        }else{
+            if (res.isWon){
+                this.setState( {
+                    results:[...this.state.results,{
+                        word:this.state.word.toUpperCase(),
+                        common:res.common
+                    }],
+                    won: true},() => {
+                    this.toggleMode();
+                });
+            }else{
+                this.setState({
+                    results:[...this.state.results,{
+                        word:this.state.word.toUpperCase(),
+                        common:res.common
+                    }],
+                    won : res.isWon,
+                    word :''//blank the input
+                });
+            }
+            //console.log(`res json from server: ${res.common}, ${res.isWon}`);
+        }
+
     }
     handleError(e) {
         this.setState({
@@ -94,7 +112,7 @@ class App extends Component {
     beginGame(){
         this.setState({
             modes :['guess','reset'],
-            mode :'guess',
+            mode : this.state.modes[0],
             results: [],
             word: '',
             list: [],
@@ -102,14 +120,20 @@ class App extends Component {
             error: null,
             won: false
         });
+        //bind again
         this.playGame = this.playGame.bind(this);
         this.updateWord = this.updateWord.bind(this);
+        this.clearError = this.clearError.bind(this);
+        //fetch again
+        this.fetchId();
+        this.fetchList();
         this.render();
     }
     //reset the game to play another
     resetGame() {
         this.setState({
-            mode :this.state.modes[0],
+            modes :['guess','reset'],
+            mode : this.state.modes[0],
             results: [],
             word: '',
             list:[],
@@ -125,11 +149,11 @@ class App extends Component {
             return;
         }
         let valid = inputValidation(this.state.list,this.state.word);
-        if (this.state.won) {
-            this.setState( {won: true},() => {
-                this.toggleMode();
-            });
-        }
+        // if (this.state.won) {
+        //     this.setState( {won: true},() => {
+        //         this.toggleMode();
+        //     });
+        // }
         if (valid && this.state.mode === this.state.modes[0]){
             this.fetchResult();
         }else if (this.state.won){
@@ -144,12 +168,17 @@ class App extends Component {
         });
     }
 
+    clearError() {
+        this.setState({
+            error: null
+        });
+        this.fetchId();
+        this.fetchList();
+    }
+
   render() {
       const modeLabel = config.modeLabels[this.state.mode];
-      const placeholder = 'Input a 5 length word';
-      const maxLen = 5;
       const title = 'Welcome to Guess Word Game';
-
     return (
         <div className="App">
             <CWHeader title = {title}/>
@@ -157,10 +186,10 @@ class App extends Component {
                   mode = {modeLabel}
                   list = {this.state.list}
                   word = {this.state.word}
+                  error = {this.state.error}
                   playGame = {this.playGame}
                   onUpdateWord = {this.updateWord}
-                  placeholder = {placeholder}
-                  maxLen = {maxLen}
+                  clearError = {this.clearError}
             />
             <CWResult won = {this.state.won} results = {this.state.results}/>
         </div>

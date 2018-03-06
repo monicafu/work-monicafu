@@ -7,7 +7,7 @@ export const getId = () => {
 export const getWordList = () => {
     return fetch('/getWordList')
         .then( response => response.ok ? response.json() : Promise.reject(response.text()) )
-        .catch( () => Promise.reject('get-wordlist-fail') );
+        .catch( () => Promise.reject('get-wordList-fail') );
 };
 
 export const getResult = (guess,id) => {

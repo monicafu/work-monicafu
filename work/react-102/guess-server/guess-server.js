@@ -7,13 +7,13 @@ const secretList = require('./secretList');
 const secretWord = require('./generateWord');
 const wordList = require('./wordlist');
 const commonLetter = require('./compareLetter');
-const answer = secretWord(wordList);
 
 app.use(express.static('public'));
 app.use(bodyParser.json({extended :true, type :'*/*'}));
 
 //web service : generate a secret word, push into list then return id
 app.get('/getId', (req, res ) =>  {
+    const answer = secretWord(wordList);
     secretList.update(answer);
     const id = secretList.idx(answer);
     console.log(`answer: ${answer}, id: ${id}`);
@@ -31,19 +31,24 @@ app.post('/getResult', (req, res ) =>  {
     const id = req.body.id;
     const common = commonLetter(guess,secretList.all()[id]);
     let isWon = false;
-    if (guess.toUpperCase() === secretList.all()[id]){
-        isWon = true;
+    if ( id !== null && guess.length === 5 ){
+        if (guess.toUpperCase() === secretList.all()[id]){
+            isWon = true;
+        }
+        res.send( JSON.stringify({
+            Method: 'POST',
+            common: common,
+            isWon: isWon
+        }) );
+    }else{
+        res.send(JSON.stringify({
+            errCode : 'invalid-input-length'
+        }));
+        res.status(500).end();
     }
-    res.send( JSON.stringify({
-        Method: 'POST',
-        common: common,
-        isWon: isWon
-    }) );
 });
 
 //
-
-
 
 app.listen(PORT,()=>{
     console.log(`Server is listening at http://localhost:${PORT}`);
