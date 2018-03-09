@@ -35,7 +35,6 @@ class App extends Component {
 
     componentWillMount() {
         this.fetchId();
-        this.fetchList();
     }
 
     fetchId() {
@@ -124,7 +123,6 @@ class App extends Component {
         this.clearError = this.clearError.bind(this);
         //fetch again
         this.fetchId();
-        this.fetchList();
         this.render();
     }
     //reset the game to play another
@@ -146,6 +144,7 @@ class App extends Component {
         if (!this.state.word){
             return;
         }
+        this.fetchList();
         let valid = inputValidation(this.state.list,this.state.word);
         if (valid && this.state.mode === this.state.modes[0]){
             this.fetchResult();
@@ -164,8 +163,6 @@ class App extends Component {
         this.setState({
             error: null
         });
-        this.fetchId();
-        this.fetchList();
     }
 
   render() {
