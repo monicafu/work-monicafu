@@ -44,11 +44,9 @@ app.post('/getResult', (req, res ) =>  {
         res.send(JSON.stringify({
             errCode : 'invalid-input-length'
         }));
-        res.status(500).end();
+        res.status(400).end();
     }
 });
-
-//
 
 app.listen(PORT,()=>{
     console.log(`Server is listening at http://localhost:${PORT}`);
