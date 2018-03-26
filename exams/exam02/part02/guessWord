@@ -1,0 +1,45 @@
+const secretList = require('./secretList');
+const random = require ('./generateWord');
+const compare = require ('./compareLetter');
+
+function searchRange(arr,target) {
+    let res = [];
+    const letter = target.charAt(0);
+    let ll = 0, lr = arr.length - 1;
+    while (ll <= lr){
+        let mid = ll + (lr - ll) / 2;
+        if (arr[mid].charAt(0) < letter){
+            ll = mid + 1;
+        }else{
+            lr = mid - 1;
+        }
+    }
+    let rl = 0, rr = arr.length - 1;
+    while (rl < rr){
+        let mid = rl + (rr- rl) / 2;
+        if (arr[mid].charAt() < letter){
+            rl = mid + 1;
+        }else{
+            rr = mid - 1;
+        }
+    }
+    if (ll <= rr){
+        res[0] = ll;
+        res[1] = rr;
+    }
+    return res;
+}
+
+const guessWord = (mark,guessed,matched,wordlist) => {
+    const answer = secretList.getList(mark).pop().toUpperCase();
+    const sortedList = wordlist.sort();
+    const range  = searchRange(sortedList,answer);
+    const list = sortedList.subarray(range[0],range[1]);
+    let guess = random(list);
+    while (compare(guess,answer) < matched || guess === guessed){
+        guess = random(list);
+    }
+    return guess;
+};
+
+module.exports = guessWord;
