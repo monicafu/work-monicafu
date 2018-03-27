@@ -1,6 +1,6 @@
 .App {
   width: 800px;
-  height:900px;
+  height:5000px;
   margin-left: 20%;
   margin-right: 25%;
   font-size : 16px;
@@ -38,7 +38,7 @@ button:hover{
 }
 .App-message{
   margin-top: 2%;
-  font-size: 20px;
+  font-size: 18px;
   margin-left:35%;
   margin-bottom: 3%;
 }
@@ -68,11 +68,14 @@ button:hover{
   margin-top: 5%;
   margin-left: 5%;
 }
+.App-player label{
+  margin-left: 10%;
+}
 
-.App-player > input{
-  margin-top: 4%;
-  font-size :16px;
-  size: 10px;
+.App-player button{
+  font-size: 18px;
+  background-color: #e5f2ff;
+  border:solid #8df0ff 1px;
 }
 
 .App-player > ul{

@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080;
-const url = `http://localhost:${PORT}`;
 
 const wordList = require('./wordlist');
 const secretList = require('./secretList');
@@ -13,63 +12,63 @@ const guessWord = require('./guessWord');
 
 app.use(express.static('public'));
 app.use(bodyParser.json({extended :true, type :'*/*'}));
-// app.options('*', (res, req, next)=>{
-//     next();
-// });
+
 
 app.use((req,res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'OPTION,GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept');
-    if(req.method === 'OPTIONS') {
-        res.sendStatus(200);
-        next();
-    }
-    //next();
+    next();
 });
 
 
 //generate secret word and send id + answer to client
 //url = '/game'
-app.post(`${url}/game/`,(req,res) => {
+app.post('/game',(req,res) => {
    const answer = secretWord(wordList);
-    console.log(answer);
-    secretList.updateList('a',answer);
-   let id = 'a'+secretList.getIndex('a',answer);
+   secretList.updateList('a',answer);
+   const id = 'a'+secretList.getIndex('a',answer);
    console.log(`answer is ${answer}`);
     res.send(JSON.stringify({
        id : id,
-       secret : answer
+       answer : answer
    }));
 });
 
 //guess a word and send guess word to client
-app.put(`${url}/game/:id/guessed`,(req,res) => {
-    //matched is from client
-    const matched = req.body.matches;
+app.put('/game/:id/guessed',(req,res) => {
+    const id = req.params.id;
     const guessed = req.body.guessed;
+    const matched = req.body.matched;
     res.send(JSON.stringify({
-        newGuess : guessWord('a',guessed,matched,wordList)
+        newGuess : guessWord(id,guessed,matched,wordList)
     }));
 });
 
 //compare letter and send matched letter and haswon
-app.get(`${url}/game/:id/guess/:guess`,(req,res) => {
+app.get('/game/:id/guess/:guess',(req,res) => {
     const id = req.params.id;
     const guess = req.params.guess;
-    const secList = secretList.getList(id.charAt(1));
+    const secList = secretList.getList(id.charAt(0));
     const secret = secList[secList.length-1];
     let hasWon = false;
+    const matched = commonLetter(guess,secret);
     if (guess === secret){
         hasWon = true;
     }
-    let matched = commonLetter(guess,secret);
     res.send(JSON.stringify({
-        matched : matched,
-        hasWon:hasWon
+        matched,
+        hasWon
+    }));
+
+});
+app.delete('/game/:id',(req,res) => {
+    const id = req.params.id;
+    secretList.emptyList(id.charAt(0));
+    res.send(JSON.stringify({
+        isDeleted: true
     }));
 });
-
 
 
 app.listen(PORT,()=>{

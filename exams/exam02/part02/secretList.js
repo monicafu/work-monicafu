@@ -25,9 +25,18 @@ const getIndex = (mark, word) => {
     }
 };
 
+const emptyList = (mark) => {
+    if (mark === 'a'){
+        secWordListA = [];
+    }else{
+        secWordListB = [];
+    }
+};
+
 module.exports = {
     getList,
     updateList,
-    getIndex
+    getIndex,
+    emptyList
 };
 

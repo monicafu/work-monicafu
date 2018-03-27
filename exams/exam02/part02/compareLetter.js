@@ -2,15 +2,15 @@ const commonLetter = (guess,secret) => {
     let map = [];
     let count = 0;
     guess = guess.toUpperCase();
-    for (let i = 0; i < secret.length; i++) {
-        if (!map[secret[i]]) {
-            map[secret[i]] = 0;
+    for (let letter = 0; letter < secret.length; letter++) {
+        if (!map[secret[letter]]) {
+            map[secret[letter]] = 0;
         }
-        map[secret[i]]++;
+        map[secret[letter]]++;
     }
-    for (let i = 0; i < guess.length; i++) {
-        if (map[guess[i]] && map[guess[i]] !== 0) {
-            map[guess[i]]--;
+    for (let letter = 0; letter < guess.length; letter++) {
+        if (map[guess[letter]] && map[guess[letter]] !== 0) {
+            map[guess[letter]]--;
             count++;
         }
     }

@@ -1,8 +1,9 @@
 const messages = {
-    'get-id-word-fail': 'Failed to get id and secret.  Check your network connection and try again.',
-    'get-guessed-fail': 'Failed to get guess from server,Check your network connection and try again.',
-    'get-result-fail':'Failed to compate letter,Check your network connection and try again.',
-    'generic-error': 'Uh-oh, something bad happened.'
+    'get-id-word-fail': 'Failed to get id and secret from server.',
+    'get-guessed-fail': 'Failed to get guess from server.',
+    'get-result-fail':'Failed to compare letter from server.',
+    'delete-fail':'Failed to delete record from server.',
+    'generic-error': 'Uh-oh, something bad happened from server.'
 };
 
 export const pickErrorMessage = code => {

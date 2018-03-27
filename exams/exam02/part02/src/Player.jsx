@@ -4,13 +4,15 @@ import './App.css'
 
 const Player = ({name,results,answer}) => {
 
-    const resultList = results.map( ({guess,matched},index)=>{
-       return (<li key ={index}>The guess is {guess},has {matched} common letters</li>);
-    });
+
+    let resultList = results.map( ({guess,matched},index)=>{
+            return (<li key ={index}>{guess}   matched:   {matched} </li>);
+        });
+
         return (
             <div className="App-player">
-                <label>{name}:  </label>
-                <input value={answer}/>
+                <button>{name}:     </button>
+                <label> {answer}</label>
                 <div>
                     <ul >
                         {resultList}

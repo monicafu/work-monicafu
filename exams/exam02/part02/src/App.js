@@ -6,10 +6,10 @@ import Message from './Message';
 import './App.css';
 
 //config values
-import config from './config';
+import config from './config.json';
 
 //services function
-import {getIdWord,getGuessed,getResult} from './getData';
+import {getIdWord,getGuessed,getResult,deleteRecord} from './getData';
 
 class App extends Component {
 
@@ -18,24 +18,27 @@ class App extends Component {
         this.state = {
             modes :['start','reset'],
             mode:'start',
+            winner:'',
             listA:{
                 url: config.alfred,
                 id:'',
                 answer:'',
+                guessed: '',
                 results:[{
-                    guessed : '',
-                    matched : 0,
-                    hasWon : false
+                    guess: '',
+                    hasWon: false,
+                    matched: 0
                 }],
             },
             listB:{
                 url: config.barbara,
                 id:'',
                 answer:'',
+                guessed: '',
                 results:[{
-                    guessed : '',
-                    matched : 0,
-                    hasWon:false
+                    guess: '',
+                    hasWon: false,
+                    matched: 0
                 }],
             },
             won:false,
@@ -50,172 +53,215 @@ class App extends Component {
         let url;
         if (this.state.listA.id === ''){
            url = this.state.listA.url+'/game';
-           console.log(url);
         }else{
             url = this.state.listB.url+'/game';
         }
-        console.log('url in app getIdWord '+ url);
         try{
-            let data = await getIdWord(url);
-            await this.handleIdWord(data)
+            let secResults = await getIdWord(url);
+                this.handleIdWord(secResults);
         }catch(err){
-            await this.handleError(err);
+                this.handleError(err);
         }
-        // getIdWord(url)
-        //     .then(data  => this.handleIdWord(data))
-        //     .catch( err => this.handleError(err));
     }
 
-    async handleIdWord(data){
-        if (data.id.charAt(0) === 'a'){
-            await this.setState({
-               listA:{
-                   id:data.id,
-                   answer:data.secret}
+    handleIdWord(secResults){
+        if (secResults.id.charAt(0) === 'a'){
+            this.setState({
+                listA:{
+                    ...this.state.listA,
+                    id:secResults.id,
+                    answer:secResults.answer,
+                }
             });
         }else{
-            await this.setState({
+            this.setState({
                 listB:{
-                    id:data.id,
-                    answer:data.secret}
+                    ...this.state.listB,
+                    id:secResults.id,
+                    answer:secResults.answer,
+                }
             });
+
         }
     }
     async fetchGuessed(id){
         let url;
         let results;
         if (id.charAt(0) === 'a'){
-            url = this.state.listA.url+'/game/id/guessed';
-            results = this.state.listA.results;
+            url = this.state.listA.url+`/game/${id}/guessed`;
+            const lenA = this.state.listA.results.length;
+            results = this.state.listA.results[lenA-1];
             try{
-                let newGuess = await getGuessed(url,results.guessed,results.matched);
+                let newGuess = await getGuessed(url,results.guess,results.matched);
                 await this.handleGuess(id,newGuess);
             }catch(err){
-                await this.handleError(err);
+                this.handleError(err);
             }
-            // getGuessed(url,results.guessed,results.matched)
-            //     .then(newGuess => this.handleGuess(id,newGuess))
-            //     .catch(err => this.handleError(err));
         }else{
-            url = this.state.listB.url+'/game/id/guessed';
-            results = this.state.listB.results;
+            url = this.state.listB.url+`/game/${id}/guessed`;
+            const lenB = this.state.listB.results.length;
+            results = this.state.listB.results[lenB-1];
             try{
-                let newGuess = await getGuessed(url,results.guessed,results.matched);
-                await this.handleGuess(id,newGuess);
+                let guessResult = await getGuessed(url,results.guess,results.matched);
+                await this.handleGuess(id,guessResult);
             }catch(err){
-                await this.handleError(err);
+                this.handleError(err);
             }
-            // getGuessed(url,results.guessed,results.matched)
-            //     .then(newGuess => this.handleGuess(id,newGuess))
-            //     .catch(err => this.handleError(err));
         }
-
     }
-    async handleGuess(id,newGuess) {
+    handleGuess(id,guessResult) {
         if (id.charAt(0) === 'a'){
-            await this.setState({
-                listA:{results:[{
-                        guessed : newGuess}]}
+            this.setState({
+                listA:{
+                    ...this.state.listA,
+                    guessed : guessResult.newGuess
+                }
             });
         }else{
-            await this.setState({
-                listB:{results:[{
-                        guessed : newGuess}]}
+            this.setState({
+                listB:{
+                    ...this.state.listB,
+                    guessed : guessResult.newGuess
+                }
             });
         }
-        await this.fetchResult(id,newGuess);
     }
 
-    async fetchResult(id,newGuess){
+    async fetchResult(toServer,id,newGuess){
         let url;
-        if (id.charAt(0) === 'a'){
-            url = this.state.listB.url+'/game/id/guess/newGuess';
+        if (toServer === 'b'){
+            url = this.state.listB.url+`/game/${id}/guess/${newGuess}`;
         }else{
-            url = this.state.listA.url+'/game/id/guess/newGuess';
+            url = this.state.listA.url+`/game/${id}/guess/${newGuess}`;
         }
         try{
-            let data = await getResult(url,id,newGuess);
-            await this.handleResults(id,data);
+            let results = await getResult(url);
+            await this.handleResults(id,results);
         }catch(err){
-            await this.handleError(err);
+            this.handleError(err);
         }
-        // getResult(url,id,newGuess)
-        //     .then( data => this.handleResults(id,data))
-        //     .catch( err => this.handleError(err));
-
+    }
+    async fetchDelete(id){
+        let url;
+        if (id.charAt(0) === 'a'){
+            url = this.state.listA.url+`/game/${id}`;
+        }else{
+            url = this.state.listB.url+`/game/${id}`;
+        }
+        try {
+            let results = await deleteRecord(url);
+            return await this.handleDelete(id,results);
+        }catch(err){
+            this.handleError(err);
+        }
     }
 
-    async handleResults(id,data) {
-        if (data.hasWon) {
-            await this.setState({
-                won: true
-            }, () => this.toggleMode());
+    async handleDelete(id,results){
+        let count = 0;
+        if (id.charAt(0) === 'a' && results.isDeleted){
+            count++;
+        }else if(id.charAt(0) === 'b' && results.isDeleted){
+            count++;
+        }
+        if (count === 2){
+            await this.resetGame();
+        }
+    }
+
+
+
+    async handleWon(id,results){
+        if (results.hasWon) {
+            this.setState({won: true},() => this.toggleMode());
+            await this.fetchDelete(this.state.listB.id);
+            await this.fetchDelete(this.state.listA.id);
             if (id.charAt(0) === 'a') {
-                await this.setState({
-                    listA: {results: [{
-                            hasWon: true}]
-                    }
+                await this.setWinner(id);
+                this.setState({
+                    listA: {
+                        ...this.state.listA,
+                        results: [...this.state.listA.results, {
+                            guess: this.state.listA.guessed,
+                            hasWon: true,
+                            matched: results.matched}],}
                 });
-            } else {
-                await this.setState({
-                    listB: {results: [{
-                            hasWon: true}]
-                    }
+            }else {
+                await this.setWinner(id);
+                this.setState({
+                    listB: {
+                        ...this.state.listB,
+                        results: [...this.state.listB.results, {
+                            guess: this.state.listB.guessed,
+                            hasWon: true,
+                            matched: results.matched}],}
                 });
             }
         }
+    }
+    async handleResults(id,results) {
+        // debugger;
+        await this.handleWon(id,results);
         if (id.charAt(0) === 'a') {
-            await this.setState({
+            this.setState({
                 listA: {
-                    results: [{
-                        matched: data.matched}],
-                }
+                    ...this.state.listA,
+                    results: [...this.state.listA.results, {
+                        guess: this.state.listA.guessed,
+                        matched: results.matched,
+                        hasWon: results.hasWon,
+                    }]
+                },
             });
         } else {
-            await this.setState({
+            this.setState({
                 listB: {
-                    results: [{
-                        matched: data.matched}],
+                    ...this.state.listB,
+                    results: [...this.state.listB.results, {
+                        guess: this.state.listB.guessed,
+                        matched: results.matched,
+                        hasWon: results.hasWon,
+                    }]
                 }
             });
         }
     }
 
-    getWinner(){
-        if (this.state.listA.hasWon){
-            return 'Alfred';
+    setWinner(id){
+        if (id.charAt(0) ==='a'){
+            this.setState({
+                winner:'Alfred'
+            });
         }else{
-            return 'Barbara';
+            this.setState({
+                winner:'Barbara'
+            });
         }
     }
 
-    async toggleMode(){
+    toggleMode(){
         if(this.state.won){
-            await this.setState({
-                mode: this.state.modes[1],//reset
+            this.setState({
+                mode: this.state.modes[1]
             });
         }else{
-            await this.setState({
-                mode: this.state.modes[0]//guess
-            });
-        }
+            this.setState({
+                mode: this.state.modes[0]
+        });
     }
+}
     /*playGame*/
     async playGame(){
         //get id and secret and set state
         await this.fetchIdWord();
         await this.fetchIdWord();
-        //use id to construct url to get guess
-        await this.fetchGuessed(this.state.listA.id);
-        await this.fetchGuessed(this.state.listB.id);
-        //get the matched result
-        if(!this.state.won){
-            let guessedOfA = this.state.listA.results.guessed;
-            await this.fetchResult(this.state.listA.id,guessedOfA);
-            let guessedOfB = this.state.listB.results.guessed;
-            this.fetchResult(this.state.listB.id,guessedOfB);
-        }else{
-            await this.resetGame();
+        while(!this.state.won){
+            await this.fetchGuessed(this.state.listA.id);
+            await this.fetchGuessed(this.state.listB.id);
+            /**********************/
+            let guessedOfA = this.state.listA.guessed;
+            await this.fetchResult('b',this.state.listB.id ,guessedOfA);
+            let guessedOfB = this.state.listB.guessed;
+            await this.fetchResult('a',this.state.listA.id,guessedOfB);
         }
     }
 
@@ -223,18 +269,20 @@ class App extends Component {
         await this.resetState();
         this.playGame = this.playGame.bind(this);
         this.clearError = this.clearError.bind(this);
-        //this.playGame();
-        await this.render();
+        this.render();
     }
-    async resetState(){
-        await this.setState ({
+
+
+    resetState(){
+        this.setState({
             mode:this.state.modes[0],
             listA:{
                 url: config.alfred,
                 id:'',
                 answer:'',
+                guessed: '',
                 results:[{
-                    guessed : '',
+                    guess : '',
                     matched : 0,
                     hasWon : false
                 }],
@@ -243,8 +291,9 @@ class App extends Component {
                 url: config.barbara,
                 id:'',
                 answer:'',
+                guessed: '',
                 results:[{
-                    guessed : '',
+                    guess : '',
                     matched : 0,
                     hasWon:false
                 }],
@@ -253,15 +302,15 @@ class App extends Component {
             error:null
         });
     }
-    async clearError(){
-        await this.setState({
+    clearError(){
+        this.setState({
             error : null
         });
     }
 
-    async handleError(err){
-        await this.setState({
-            error:err
+    handleError(err){
+        this.setState({
+            error : err
         });
         console.log(err);
     }
@@ -282,14 +331,17 @@ class App extends Component {
                 mode = {modeLabel}
                 error = {this.state.error}
                 clearError = {this.clearError}
+                won = {this.state.won}
+                answer = {this.state.listA.answer}
                 playGame = {this.playGame}
 
             />
-            <Message won = {this.state.won} winner = {this.getWinner} turns = {this.state.listA.results}/>
+            <Message won = {this.state.won} winner = {this.state.winner} turns = {this.state.listA.results.length-1}/>
             <div className="App-output">
                 <div className = "Alfred" >
                     <Player
                     name ={config.server.a}
+                    guessed ={this.state.listA.guessed}
                     results = {this.state.listA.results}
                     answer = {this.state.listA.answer}
                     />
@@ -297,6 +349,7 @@ class App extends Component {
                 <div className = "Barbara" >
                     <Player
                     name ={config.server.b}
+                    guessed ={this.state.listB.guessed}
                     results = {this.state.listB.results}
                     answer = {this.state.listB.answer}
                     />
