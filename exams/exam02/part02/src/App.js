@@ -164,7 +164,7 @@ class App extends Component {
             count++;
         }
         if (count === 2){
-            await this.resetGame();
+            this.toggleMode();
         }
     }
 
@@ -172,9 +172,7 @@ class App extends Component {
 
     async handleWon(id,results){
         if (results.hasWon) {
-            this.setState({won: true},() => this.toggleMode());
-            await this.fetchDelete(this.state.listB.id);
-            await this.fetchDelete(this.state.listA.id);
+            this.setState({won: true}, () => this.toggleMode());
             if (id.charAt(0) === 'a') {
                 await this.setWinner(id);
                 this.setState({
@@ -183,9 +181,11 @@ class App extends Component {
                         results: [...this.state.listA.results, {
                             guess: this.state.listA.guessed,
                             hasWon: true,
-                            matched: results.matched}],}
+                            matched: results.matched
+                        }],
+                    }
                 });
-            }else {
+            } else {
                 await this.setWinner(id);
                 this.setState({
                     listB: {
@@ -193,9 +193,13 @@ class App extends Component {
                         results: [...this.state.listB.results, {
                             guess: this.state.listB.guessed,
                             hasWon: true,
-                            matched: results.matched}],}
+                            matched: results.matched
+                        }],
+                    }
                 });
             }
+            await this.fetchDelete(this.state.listB.id);
+            await this.fetchDelete(this.state.listA.id);
         }
     }
     async handleResults(id,results) {
@@ -251,17 +255,20 @@ class App extends Component {
 }
     /*playGame*/
     async playGame(){
-        //get id and secret and set state
         await this.fetchIdWord();
         await this.fetchIdWord();
-        while(!this.state.won){
-            await this.fetchGuessed(this.state.listA.id);
-            await this.fetchGuessed(this.state.listB.id);
-            /**********************/
-            let guessedOfA = this.state.listA.guessed;
-            await this.fetchResult('b',this.state.listB.id ,guessedOfA);
-            let guessedOfB = this.state.listB.guessed;
-            await this.fetchResult('a',this.state.listA.id,guessedOfB);
+        console.log('won : '+this.state.won);
+        if (this.state.won){
+            await this.resetGame();
+        }else if (this.state.mode === this.state.modes[0]){
+            while(!this.state.won){
+                await this.fetchGuessed(this.state.listA.id);
+                await this.fetchGuessed(this.state.listB.id);
+                let guessedOfA = this.state.listA.guessed;
+                await this.fetchResult('b',this.state.listB.id ,guessedOfA);
+                let guessedOfB = this.state.listB.guessed;
+                await this.fetchResult('a',this.state.listA.id,guessedOfB);
+            }
         }
     }
 
