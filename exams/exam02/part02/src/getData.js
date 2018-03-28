@@ -7,8 +7,8 @@ export const getIdWord = async (url) => {
             mode: 'cors'});
         return await res.json();
     }catch(e){
-        console.log(e);
         Promise.reject('get-id-word-fail');
+        console.log(e);
     }
 };
 
@@ -25,9 +25,8 @@ export const getGuessed = async (url,guessed,matched) => {
         });
         return await res.json();
     }catch (e){
-        console.log(e);
         Promise.reject('get-guessed-fail');
-
+        console.log(e);
     }
 };
 
@@ -41,8 +40,8 @@ export const getResult = async (url) => {
         });
         return await res.json();
     }catch(e) {
-        console.log(e);
         Promise.reject('get-result-fail');
+        console.log(e);
     }
 
 };
@@ -56,8 +55,8 @@ export const deleteRecord = async (url) => {
         });
         return await res.json();
       }catch(e) {
-          console.log(e);
-          Promise.reject('delete-fail');
+        Promise.reject('delete-fail');
+        console.log(e);
       }
 
 };

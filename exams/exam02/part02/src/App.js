@@ -44,7 +44,7 @@ class App extends Component {
             won:false,
             error:null
         };
-        this.playGame = this.playGame.bind(this);
+        this.startGame = this.startGame.bind(this);
         this.clearError = this.clearError.bind(this);
     };
 
@@ -57,16 +57,16 @@ class App extends Component {
             url = this.state.listB.url+'/game';
         }
         try{
-            let secResults = await getIdWord(url);
-                this.handleIdWord(secResults);
+            const secResults = await getIdWord(url);
+                await this.handleIdWord(secResults);
         }catch(err){
                 this.handleError(err);
         }
     }
 
-    handleIdWord(secResults){
+    async handleIdWord(secResults){
         if (secResults.id.charAt(0) === 'a'){
-            this.setState({
+            await this.setState({
                 listA:{
                     ...this.state.listA,
                     id:secResults.id,
@@ -74,7 +74,7 @@ class App extends Component {
                 }
             });
         }else{
-            this.setState({
+            await this.setState({
                 listB:{
                     ...this.state.listB,
                     id:secResults.id,
@@ -92,7 +92,7 @@ class App extends Component {
             const lenA = this.state.listA.results.length;
             results = this.state.listA.results[lenA-1];
             try{
-                let newGuess = await getGuessed(url,results.guess,results.matched);
+                const newGuess = await getGuessed(url,results.guess,results.matched);
                 await this.handleGuess(id,newGuess);
             }catch(err){
                 this.handleError(err);
@@ -102,80 +102,54 @@ class App extends Component {
             const lenB = this.state.listB.results.length;
             results = this.state.listB.results[lenB-1];
             try{
-                let guessResult = await getGuessed(url,results.guess,results.matched);
+                const guessResult = await getGuessed(url,results.guess,results.matched);
                 await this.handleGuess(id,guessResult);
             }catch(err){
                 this.handleError(err);
             }
         }
     }
-    handleGuess(id,guessResult) {
+    async handleGuess(id,guessResult) {
+        if (guessResult.msg){
+            this.handleError(guessResult.msg);
+        }
         if (id.charAt(0) === 'a'){
-            this.setState({
+            await this.setState({
                 listA:{
                     ...this.state.listA,
-                    guessed : guessResult.newGuess
-                }
+                    guessed : guessResult.newGuess}
             });
         }else{
-            this.setState({
+            await this.setState({
                 listB:{
                     ...this.state.listB,
-                    guessed : guessResult.newGuess
-                }
+                    guessed : guessResult.newGuess}
             });
         }
     }
 
-    async fetchResult(toServer,id,newGuess){
+    async fetchResult(toServer,idForThatServer,myId,newGuess){
         let url;
-        if (toServer === 'b'){
-            url = this.state.listB.url+`/game/${id}/guess/${newGuess}`;
+        if (toServer === config.server.b){
+            url = this.state.listB.url+`/game/${idForThatServer}/guess/${newGuess}`;
         }else{
-            url = this.state.listA.url+`/game/${id}/guess/${newGuess}`;
+            url = this.state.listA.url+`/game/${idForThatServer}/guess/${newGuess}`;
         }
         try{
-            let results = await getResult(url);
-            await this.handleResults(id,results);
+            const results = await getResult(url);
+            await this.handleResults(myId,results);
         }catch(err){
             this.handleError(err);
         }
     }
-    async fetchDelete(id){
-        let url;
-        if (id.charAt(0) === 'a'){
-            url = this.state.listA.url+`/game/${id}`;
-        }else{
-            url = this.state.listB.url+`/game/${id}`;
-        }
-        try {
-            let results = await deleteRecord(url);
-            return await this.handleDelete(id,results);
-        }catch(err){
-            this.handleError(err);
-        }
-    }
-
-    async handleDelete(id,results){
-        let count = 0;
-        if (id.charAt(0) === 'a' && results.isDeleted){
-            count++;
-        }else if(id.charAt(0) === 'b' && results.isDeleted){
-            count++;
-        }
-        if (count === 2){
-            this.toggleMode();
-        }
-    }
-
-
 
     async handleWon(id,results){
         if (results.hasWon) {
-            this.setState({won: true}, () => this.toggleMode());
+            await this.setState({won: true});
+            console.log('is won ? '+this.state.won);
             if (id.charAt(0) === 'a') {
                 await this.setWinner(id);
-                this.setState({
+                await this.setState({
                     listA: {
                         ...this.state.listA,
                         results: [...this.state.listA.results, {
@@ -185,9 +159,10 @@ class App extends Component {
                         }],
                     }
                 });
+                await console.log('results A: '+this.state.listA.results.guess,this.state.listA.results.matched);
             } else {
                 await this.setWinner(id);
-                this.setState({
+                await this.setState({
                     listB: {
                         ...this.state.listB,
                         results: [...this.state.listB.results, {
@@ -197,16 +172,19 @@ class App extends Component {
                         }],
                     }
                 });
+                await console.log('results B: '+this.state.listA.results.guess,this.state.listB.results.matched);
             }
-            await this.fetchDelete(this.state.listB.id);
-            await this.fetchDelete(this.state.listA.id);
+
         }
     }
     async handleResults(id,results) {
         // debugger;
+        if (results.msg){
+            this.handleError(results.msg);
+        }
         await this.handleWon(id,results);
         if (id.charAt(0) === 'a') {
-            this.setState({
+            await this.setState({
                 listA: {
                     ...this.state.listA,
                     results: [...this.state.listA.results, {
@@ -217,7 +195,7 @@ class App extends Component {
                 },
             });
         } else {
-            this.setState({
+            await this.setState({
                 listB: {
                     ...this.state.listB,
                     results: [...this.state.listB.results, {
@@ -230,55 +208,94 @@ class App extends Component {
         }
     }
 
-    setWinner(id){
+    async setWinner(id){
         if (id.charAt(0) ==='a'){
-            this.setState({
+            await this.setState({
                 winner:'Alfred'
             });
         }else{
-            this.setState({
+            await this.setState({
                 winner:'Barbara'
             });
         }
     }
 
-    toggleMode(){
+    async fetchDelete(id){
+        let url;
+        if (id.charAt(0) === 'a'){
+            url = this.state.listA.url+`/game/${id}`;
+        }else{
+            url = this.state.listB.url+`/game/${id}`;
+        }
+        try {
+            const results = await deleteRecord(url);
+            return await this.handleDelete(id,results);
+        }catch(err){
+            this.handleError(err);
+        }
+    }
+
+    async handleDelete(id,results){
+        if (id.charAt(0) === 'a' && results.isDeleted){
+            return await results.isDeleted;
+        }else if(id.charAt(0) === 'b' && results.isDeleted){
+            return await results.isDeleted;
+        }
+    }
+
+    async toggleMode(){
         if(this.state.won){
-            this.setState({
+            await this.setState({
                 mode: this.state.modes[1]
             });
         }else{
-            this.setState({
+            await this.setState({
                 mode: this.state.modes[0]
         });
     }
 }
-    /*playGame*/
+    async startGame(){
+        if (this.state.mode === this.state.modes[0]){
+            await this.playGame();
+        }else {
+            await this.resetGame();
+        }
+    }
     async playGame(){
         await this.fetchIdWord();
         await this.fetchIdWord();
-        console.log('won : '+this.state.won);
-        if (this.state.won){
-            await this.resetGame();
-        }else if (this.state.mode === this.state.modes[0]){
-            while(!this.state.won){
-                await this.fetchGuessed(this.state.listA.id);
-                await this.fetchGuessed(this.state.listB.id);
-                let guessedOfA = this.state.listA.guessed;
-                await this.fetchResult('b',this.state.listB.id ,guessedOfA);
-                let guessedOfB = this.state.listB.guessed;
-                await this.fetchResult('a',this.state.listA.id,guessedOfB);
+
+        while (!this.state.won){
+            //server alfred
+            await this.fetchGuessed(this.state.listA.id);
+            const guessedOfA = this.state.listA.guessed;
+            const idOfA = this.state.listA.id;
+            await this.fetchResult(config.server.b,this.state.listB.id,idOfA,guessedOfA);
+            //server barbara
+            await this.fetchGuessed(this.state.listB.id);
+            const guessedOfB = this.state.listB.guessed;
+            const idOfB = this.state.listB.id;
+            await this.fetchResult(config.server.a,this.state.listA.id,idOfB,guessedOfB);
+        }
+        if(this.state.won){
+            const deleteA = await this.fetchDelete(this.state.listA.id);
+            const deleteB = await this.fetchDelete(this.state.listB.id);
+            if(deleteA && deleteB){
+                await this.toggleMode();
             }
         }
     }
 
     async resetGame(){
         await this.resetState();
-        this.playGame = this.playGame.bind(this);
+        this.nextRound();
+    }
+
+    nextRound(){
+        this.startGame = this.startGame.bind(this);
         this.clearError = this.clearError.bind(this);
         this.render();
     }
-
 
     resetState(){
         this.setState({
@@ -340,27 +357,21 @@ class App extends Component {
                 clearError = {this.clearError}
                 won = {this.state.won}
                 answer = {this.state.listA.answer}
-                playGame = {this.playGame}
+                startGame = {this.startGame}
 
             />
             <Message won = {this.state.won} winner = {this.state.winner} turns = {this.state.listA.results.length-1}/>
             <div className="App-output">
-                <div className = "Alfred" >
-                    <Player
+                <Player
                     name ={config.server.a}
-                    guessed ={this.state.listA.guessed}
                     results = {this.state.listA.results}
                     answer = {this.state.listA.answer}
-                    />
-                </div>
-                <div className = "Barbara" >
-                    <Player
+                />
+                <Player
                     name ={config.server.b}
-                    guessed ={this.state.listB.guessed}
                     results = {this.state.listB.results}
                     answer = {this.state.listB.answer}
-                    />
-                </div>
+                />
             </div>
       </div>
     );

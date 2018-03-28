@@ -8,7 +8,7 @@ const secretList = require('./secretList');
 const secretWord = require('./generateWord');
 const commonLetter = require('./compareLetter');
 const guessWord = require('./guessWord');
-
+const date = require('./date');
 
 app.use(express.static('public'));
 app.use(bodyParser.json({extended :true, type :'*/*'}));
@@ -29,9 +29,11 @@ app.post('/game',(req,res) => {
    secretList.updateList('a',answer);
    const id = 'a'+secretList.getIndex('a',answer);
    console.log(`answer is ${answer}`);
-    res.send(JSON.stringify({
-       id : id,
-       answer : answer
+   date.serverA.id = id;
+   date.serverA.createDate = new Date().getTime();
+    res.status(200).send(JSON.stringify({
+       id,
+       answer
    }));
 });
 
@@ -40,9 +42,13 @@ app.put('/game/:id/guessed',(req,res) => {
     const id = req.params.id;
     const guessed = req.body.guessed;
     const matched = req.body.matched;
-    res.send(JSON.stringify({
-        newGuess : guessWord(id,guessed,matched,wordList)
-    }));
+    if (id.charAt(0)=== 'a'){
+        res.status(200).send(JSON.stringify({
+            newGuess : guessWord(id,guessed,matched,wordList)
+        }));
+    }else{
+        res.status(400).send( {"msg": "user-id-invalid" } );
+    }
 });
 
 //compare letter and send matched letter and haswon
@@ -53,21 +59,29 @@ app.get('/game/:id/guess/:guess',(req,res) => {
     const secret = secList[secList.length-1];
     let hasWon = false;
     const matched = commonLetter(guess,secret);
-    if (guess === secret){
-        hasWon = true;
+    if (id.charAt(0) === 'a' && guess !== null){
+        if (guess === secret){
+            hasWon = true;
+        }
+        res.status(200).send(JSON.stringify({
+            matched,
+            hasWon
+        }));
+    }else{
+        res.status(400).send( {"msg": "user-id-guess-invalid" } );
     }
-    res.send(JSON.stringify({
-        matched,
-        hasWon
-    }));
-
 });
 app.delete('/game/:id',(req,res) => {
     const id = req.params.id;
     secretList.emptyList(id.charAt(0));
-    res.send(JSON.stringify({
-        isDeleted: true
-    }));
+    date.serverA.modifyDate = new Date().getTime();
+    if (id.charAt(0) === 'a'){
+        res.status(200).send(JSON.stringify({
+            isDeleted: true
+        }));
+    }else{
+        res.status(400).send( {"msg": "user-id-invalid" } );
+    }
 });
 
 
