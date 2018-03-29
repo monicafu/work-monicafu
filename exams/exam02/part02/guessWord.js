@@ -1,36 +1,30 @@
+const random = require ('./generateWord');
+const compare = require ('./compareLetter');
 
-let historyA = {
-    guessOfA : [],
-    count:0
-};
-let historyB = {
-    guessOfB : [],
-    count:0
-};
-const guessWord = (mark,guessed,matched,wordlist) => {
+
+const guessWord = (wordList,guessed,matched) => {
+    let copyList = wordList;
     let newGuess = '';
-    if (mark.charAt(0) === 'a'){
-        let copyListA = [...wordlist];
-        if(historyA.count === wordlist.length){
-            historyA.count = 0;
-        }else{
-            let newGuessA = copyListA[historyA.count];
-            historyA.count++;
-            newGuess = newGuessA;
-            console.log("guess A : " + newGuessA);
-        }
-    }else{
-        let copyListB = [...wordlist].reverse();
-        if (historyB.count === wordlist.length){
-            historyB.count = 0;
-        }else{
-            let newGuessB = copyListB[historyB.count];
-            historyB.count++;
-            newGuess = newGuessB;
-            console.log("guess B : " + newGuessB);
-        }
+    // console.log('------------------------');
+    // console.log("old matched: "+guessed, " , "+matched);
+    let temp = [];
+    if (guessed === undefined || matched === 0){
+        newGuess = random (copyList);
+    }else if (matched !== 0){
+        const guessedIdx = copyList.indexOf(guessed);
+        copyList.splice(guessedIdx,1);
+        copyList.forEach((element) =>{
+            let common = compare(element,guessed);
+            if (common === matched){
+                temp.push(element);
+            }
+        });
+        copyList = temp;
+        // console.log('copyList len: '+temp.length);
+        newGuess = random(copyList);
     }
-
+    // console.log(`new guess :${newGuess}`);
+    // console.log('------------------------');
     return newGuess;
 };
 

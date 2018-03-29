@@ -1,6 +1,7 @@
 let secWordListA = [];
 let secWordListB = [];
 
+
 const getList = (mark) => {
     if (mark === 'a'){
         return secWordListA;

@@ -4,12 +4,11 @@ const app = express();
 const PORT = 8888;
 
 const wordList = require('./wordlist');
-const secretList = require('./secretList');
 const secretWord = require('./generateWord');
 const commonLetter = require('./compareLetter');
 const guessWord = require('./guessWord');
-const date = require('./date');
-
+const users = {};
+let startId = 0;
 
 app.use(express.static('public'));
 app.use(bodyParser.json({extended :true, type :'*/*'}));
@@ -27,12 +26,16 @@ app.use((req,res, next)=>{
 //generate secret word and send id + answer to client
 //url = '/game'
 app.post('/game',(req,res) => {
-    const answer = secretWord(wordList);
-    secretList.updateList('b',answer);
-    const id = 'b'+ secretList.getIndex('b',answer);
-    console.log(`answer is ${answer}`);
-    date.serverB.id = id;
-    date.serverB.createDate = new Date().getTime();
+    const id = 'b'+ startId;
+    users[id] = {};
+    users[id].userId = id;
+    users[id].wordList =[...wordList];
+    const answer = secretWord(users[id].wordList);
+    console.log(`user : ${id} , ${answer}`);
+    users[id].secret = answer;
+    users[id].createDate = new Date().getTime();
+    startId++;
+    console.log('secret: '+users[id].secret);
     res.status(200).send(JSON.stringify({
         id,
         answer
@@ -46,10 +49,10 @@ app.put('/game/:id/guessed',(req,res) => {
     const matched = req.body.matched;
     if (id.charAt(0)=== 'b'){
         res.status(200).send(JSON.stringify({
-            newGuess : guessWord(id,guessed,matched,wordList)
+            newGuess : guessWord(users[id].wordList,guessed,matched)
         }));
     }else{
-        res.status(400).send( {"msg": "user-id-invalid" } );
+        res.status(400).send( {msg: "user-id-invalid" } );
     }
 });
 
@@ -57,10 +60,10 @@ app.put('/game/:id/guessed',(req,res) => {
 app.get('/game/:id/guess/:guess',(req,res) => {
     const id = req.params.id;
     const guess = req.params.guess;
-    const secList = secretList.getList(id.charAt(0));
-    const secret = secList[secList.length-1];
+    const secret = users[id].secret;
     let hasWon = false;
     const matched = commonLetter(guess,secret);
+    users[id].modifyDate = new Date().getTime();
     if (id.charAt(0) === 'b' && guess !== null){
         if (guess === secret){
             hasWon = true;
@@ -70,20 +73,19 @@ app.get('/game/:id/guess/:guess',(req,res) => {
             hasWon
         }));
     }else{
-        res.status(400).send( {"msg": "user-id-guess-invalid" } );
+        res.status(400).send( {msg: "user-id-guess-invalid" } );
     }
 });
 
 app.delete('/game/:id',(req,res) => {
     let id = req.params.id;
-    secretList.emptyList(id.charAt(0));
-    date.serverB.modifyDate = new Date().getTime();
+    delete users[id];
     if (id.charAt(0) === 'b'){
         res.status(200).send(JSON.stringify({
             isDeleted: true
         }));
     }else{
-        res.status(400).send( {"msg": "user-id-invalid" } );
+        res.status(400).send( {msg: "user-id-invalid" } );
     }
 });
 
