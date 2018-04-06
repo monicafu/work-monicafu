@@ -1,0 +1,89 @@
+.App {
+  width: 800px;
+  height:5000px;
+  margin-left: 20%;
+  margin-right: 25%;
+  font-size : 16px;
+  box-sizing: border-box;
+}
+
+.App-header {
+  background-color: #e5f2ff;
+  height: 40px;
+  padding: 10px;
+  font-size:20px;
+  text-align: center;
+  border:solid #8df0ff 1px;
+}
+
+.App-title {
+  font-size: 1em;
+}
+
+.App-btn{
+  margin-top: 20px;
+  font-size :25px;
+  margin-left:45%;
+  margin-bottom: 15px;
+}
+
+button:hover{
+  background-color: forestgreen;
+}
+.App p{
+  text-align: center;
+}
+.App label{
+  text-align: center;
+}
+.App-message{
+  margin-top: 2%;
+  font-size: 18px;
+  margin-left:35%;
+  margin-bottom: 3%;
+}
+
+.App-output{
+  width: 100%;
+  height:100%;
+  box-sizing: border-box;
+  background-color: #f6f8fa;
+  border:solid #ACAFB0 1px;
+}
+
+.Alfred{
+  height: 500px;
+  width:350px;
+  position: absolute;
+}
+
+.Barbara{
+  height: 500px;
+  width:350px;
+  margin-left:450px;
+}
+
+.App-player {
+  margin-top: 5%;
+  margin-left: 5%;
+}
+
+.App-player label{
+  margin-left: 5%;
+}
+
+.App-player button{
+  font-size: 18px;
+  background-color: #e5f2ff;
+  border:solid #8df0ff 1px;
+}
+
+.App-player > ul{
+  font-size: 16px;
+  display:inline-block;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

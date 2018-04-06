@@ -1,0 +1,12 @@
+{
+  "alfred": "http://localhost:8080",
+  "barbara": "http://localhost:8888",
+  "modeLabels": {
+    "start": "Start",
+    "reset": "New Game"
+  },
+  "server":{
+    "a" : "Alfred",
+    "b" : "Barbara"
+  }
+}
